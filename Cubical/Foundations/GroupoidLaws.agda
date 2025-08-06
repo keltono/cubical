@@ -39,8 +39,10 @@ lUnit-filler {x = x} p j k i =
                -- ; (k = i1) → compPath-filler refl p j i
                   }) (inS (p (~ k ∧ i ))) j
 
+
 lUnit : (p : x ≡ y) → p ≡ refl ∙ p
 lUnit p j i = lUnit-filler p i1 j i
+
 
 symRefl : refl {x = x} ≡ refl ⁻¹
 symRefl i = refl

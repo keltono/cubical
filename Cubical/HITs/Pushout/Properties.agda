@@ -64,6 +64,23 @@ elimProp P isPropP PB PC (inr x) = PC x
 elimProp {f = f} {g = g} P isPropP PB PC (push a i) =
   isOfHLevel→isOfHLevelDep 1 isPropP (PB (f a)) (PC (g a)) (push a) i
 
+pushout-elim : {f : A → B} {g : A → C} (P : Pushout f g → Type ℓ''')
+  (F : (x : B) → P (inl x))
+  (G : (x : C) → P (inr x)) →
+  ((x : A) → PathP (λ i → P (push x i)) (F (f x)) (G (g x))) →
+  (x : Pushout f g) → P x
+pushout-elim P F G p (inl x) = F x
+pushout-elim P F G p (inr x) = G x
+pushout-elim P F G p (push x i) = p x i
+
+--was having weird universe level issues when I tried to make this a record
+spanCocone : ∀ {ℓ ℓ₁ ℓ₂ ℓ₃} {A : Type ℓ} {B : Type ℓ₁} {C : Type ℓ₂} (f : A → B) (g : A → C) (D : Type ℓ₃) → Type _
+spanCocone {A = A} {B = B} {C = C} f g D = Σ (B → D) λ p → Σ (C → D) λ q → p ∘ f ≡ q ∘ g
+
+universalPushoutMap : ∀ {ℓ₃} {D : Type ℓ₃} {f : A → B} {g : A → C} → spanCocone f g D → Pushout f g → D
+universalPushoutMap  {D = D} (p , q , coherence) = pushout-elim (λ _ → D) p q (funExtS⁻ coherence)
+ 
+
 
 {-
   Switching the span does not change the pushout
@@ -209,6 +226,8 @@ Then the lemma states there is an equivalence A□○ ≃ A○□.
 
 -}
 
+
+
 record 3x3-span {ℓ₀₀ ℓ₀₂ ℓ₀₄ ℓ₂₀ ℓ₂₂ ℓ₂₄ ℓ₄₀ ℓ₄₂ ℓ₄₄ : Level} :
   Type (ℓ-suc (ℓ-maxList (ℓ₀₀ ∷ ℓ₀₂ ∷ ℓ₀₄ ∷ ℓ₂₀ ∷ ℓ₂₂ ∷ ℓ₂₄ ∷ ℓ₄₀ ∷ ℓ₄₂ ∷ ℓ₄₄ ∷ []))) where
   field
@@ -245,6 +264,7 @@ record 3x3-span {ℓ₀₀ ℓ₀₂ ℓ₀₄ ℓ₂₀ ℓ₂₂ ℓ₂₄ ℓ
 
   -- pushouts of the lines
   A□0 : Type _
+
   A□0 = Pushout f10 f30
 
   A□2 : Type _
@@ -844,7 +864,7 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
     compIso (compIso (invIso A□○≅cofibInr)
       (3x3-Iso inst)) A○□≅
 
--- Commutative squares and pushout squares
+-- Commutative squares and pushout sq=uares
 module _ {ℓ₀ ℓ₂ ℓ₄ ℓP : Level} where
   private
     ℓ* = ℓ-maxList (ℓ₀ ∷ ℓ₂ ∷ ℓ₄ ∷ ℓP ∷ [])

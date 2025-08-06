@@ -63,6 +63,8 @@ leftInv IsoFunSpaceJoin f =
 joinPushout : (A : Type ℓ) → (B : Type ℓ') → Type (ℓ-max ℓ ℓ')
 joinPushout A B = Pushout {A = A × B} proj₁ proj₂
 
+
+
 -- Proof that it is equal
 joinPushout-iso-join : (A : Type ℓ) → (B : Type ℓ') → Iso (joinPushout A B) (join A B)
 joinPushout-iso-join A B = iso joinPushout→join join→joinPushout join→joinPushout→join joinPushout→join→joinPushout
@@ -93,6 +95,7 @@ joinPushout≃join A B = isoToEquiv (joinPushout-iso-join A B)
 
 joinPushout≡join : (A : Type ℓ) → (B : Type ℓ') → joinPushout A B ≡ join A B
 joinPushout≡join A B = isoToPath (joinPushout-iso-join A B)
+
 
 
 {-

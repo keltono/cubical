@@ -18,6 +18,7 @@ open Sequence
 
 data SeqColim (X : Sequence ℓ) : Type ℓ where
   incl : {n : ℕ} → X .obj n → SeqColim X
+  -- forces objext at level x to be equal to its image in x+1
   push : {n : ℕ} (x : X .obj n) → incl x ≡ incl (X .map x)
 
 data FinSeqColim (m : ℕ) (X : Sequence ℓ) : Type ℓ where

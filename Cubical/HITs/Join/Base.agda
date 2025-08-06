@@ -4,6 +4,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Pointed.Base
+open import Cubical.HITs.Pushout
+open import Cubical.Data.Pullback.Base
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.S3
@@ -14,6 +16,11 @@ data join {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ ℓ') wh
   inl : A → join A B
   inr : B → join A B
   push : ∀ a b → inl a ≡ inr b
+
+
+→join : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} (f : A → C) (g : B → C) → Pushout pₗ  pᵣ  → C
+→join f g = universalPushoutMap (pullbackFormsCocone f g)  
+  
 
 join∙ : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
   → Pointed _
