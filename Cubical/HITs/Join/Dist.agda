@@ -10,6 +10,8 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence 
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.Function
+open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.S2
@@ -17,6 +19,7 @@ open import Cubical.HITs.Join renaming (inl to inlj ; inr to inrj ; push to push
 open import Cubical.Data.Sigma renaming (fst to π₁; snd to π₂)
 open import Cubical.HITs.Wedge
 open import Cubical.Data.Unit
+open import Cubical.Data.Sigma
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Pushout 
 open import Cubical.Data.Unit renaming (Unit to ⊤)
@@ -68,13 +71,12 @@ module _ {ℓ ℓ' ℓ''} ((A , ⋆a) : Pointed ℓ) ((B , ⋆b) : Pointed ℓ')
   f3□' (inr c) = inr c
   f3□' (push c i) = push (⋆b , c ) i
 
+  f3□-retract : ∀ x →  3x3-span.f3□ span x ≡ f3□' x
+  f3□-retract (inl tt)   = refl
+  f3□-retract (inr c)    = refl
+  f3□-retract (push c i) = congS (λ x → x i) (sym (doubleCompPath-filler refl (push (⋆b , c)) refl))
   f3□≡f3□' : 3x3-span.f3□ span ≡ f3□'
   f3□≡f3□' = funExt f3□-retract
-    where
-        f3□-retract : ∀ x →  3x3-span.f3□ span x ≡ f3□' x
-        f3□-retract (inl tt)   = refl
-        f3□-retract (inr c)    = refl
-        f3□-retract (push c i) = congS (λ x → x i) (sym (doubleCompPath-filler refl (push (⋆b , c)) refl))
 
   f□1' :  3x3-span.A□2  span  → 3x3-span.A□0 span
   f□1' (inl (a  , c)) = inl a
@@ -169,6 +171,15 @@ module _ {ℓ ℓ' ℓ''} ((A , ⋆a) : Pointed ℓ) ((B , ⋆b) : Pointed ℓ')
   A∨B*C-span : 3-span
   A∨B*C-span = 3span p₁ p₂
 
+  f□1'f⁻¹≡p₁ : ∀ x → f□1' (A⋁B×C→AC⊔BC x) ≡ p₁ x
+  f□1'f⁻¹≡p₁ (inl a , c) =  refl
+  f□1'f⁻¹≡p₁ (inr b , c) =  refl
+  f□1'f⁻¹≡p₁ (push tt i , c) =  refl
+
+  f□1'f⁻¹≡inlp₂ : ∀ (x : ((A , ⋆a) ⋁ (B , ⋆b)) × C) → f□3' (A⋁B×C→AC⊔BC x) ≡ inl (p₂ x)
+  f□1'f⁻¹≡inlp₂ (inl a , c) =  refl
+  f□1'f⁻¹≡inlp₂ (inr b , c) =  sym (push c) 
+  f□1'f⁻¹≡inlp₂ (push tt i , c) j =  push c (~ j ∧ i )  
   A□○=A∨B*C-span : 3-span-equiv A∨B*C-span A□○ 
   A□○=A∨B*C-span = record { 
        e0 = pathToEquiv refl ;
@@ -177,22 +188,17 @@ module _ {ℓ ℓ' ℓ''} ((A , ⋆a) : Pointed ℓ) ((B , ⋆b) : Pointed ℓ')
        H1 = λ x → (f□1'f⁻¹≡p₁ x ∙ sym (transportRefl (p₁ x))) ;
        H3 = f□1'f⁻¹≡inlp₂
        }
-      where
-        f□1'f⁻¹≡p₁ : ∀ x → f□1' (A⋁B×C→AC⊔BC x) ≡ p₁ x
-        f□1'f⁻¹≡p₁ (inl a , c) =  refl
-        f□1'f⁻¹≡p₁ (inr b , c) =  refl
-        f□1'f⁻¹≡p₁ (push tt i , c) =  refl
-
-        f□1'f⁻¹≡inlp₂ : ∀ (x : ((A , ⋆a) ⋁ (B , ⋆b)) × C) → f□3' (A⋁B×C→AC⊔BC x) ≡ inl (p₂ x)
-        f□1'f⁻¹≡inlp₂ (inl a , c) =  refl
-        f□1'f⁻¹≡inlp₂ (inr b , c) =  sym (push c) 
-        f□1'f⁻¹≡inlp₂ (push tt i , c) j =  push c (~ j ∧ i )  
         
+  Lift⊤→A*C : Lift {ℓ-zero} {ℓ''} ⊤ → joinPushout A C
+  Lift⊤→A*C (lift tt) = inl ⋆a
+  Lift⊤→B*C : Lift {ℓ-zero} {ℓ''} ⊤ → joinPushout B C
+  Lift⊤→B*C (lift tt) = inl ⋆b
+
   A○□ : 3-span
   A○□ = 3span f1□' f3□'
   AC∨BC-span : 3-span
   AC∨BC-span = record
-   { A0 =  joinPushout A C ; A2 =  Lift {ℓ-zero} {ℓ''} ⊤ ; A4 =  joinPushout B C ; f1 =  λ _ → inl ⋆a  ; f3 = λ _ → inl ⋆b }
+   { A0 =  joinPushout A C ; A2 =  Lift {ℓ-zero} {ℓ''} ⊤ ; A4 =  joinPushout B C ; f1 = Lift⊤→A*C  ; f3 = Lift⊤→B*C }
 
   A○□=AC∨BC-span : 3-span-equiv A○□ AC∨BC-span
   A○□=AC∨BC-span = record {
@@ -212,10 +218,6 @@ module _ {ℓ ℓ' ℓ''} ((A , ⋆a) : Pointed ℓ) ((B , ⋆b) : Pointed ℓ')
                inl⋆b≡f3□' (inr c) = push (⋆b , c) 
                inl⋆b≡f3□' (push c i) j =  push (⋆b , c) (i ∧ j)
 
-  Lift⊤→A*C : Lift {ℓ-zero} {ℓ''} ⊤ → joinPushout A C
-  Lift⊤→A*C (lift tt) = inl ⋆a
-  Lift⊤→B*C : Lift {ℓ-zero} {ℓ''} ⊤ → joinPushout B C
-  Lift⊤→B*C (lift tt) = inl ⋆b
 
   ⊤→A*C : ⊤ → joinPushout A C
   ⊤→A*C tt = inl ⋆a
@@ -224,6 +226,54 @@ module _ {ℓ ℓ' ℓ''} ((A , ⋆a) : Pointed ℓ) ((B , ⋆b) : Pointed ℓ')
   
   A○□'≡A*C∨B*C' : (Pushout f1□' f3□') ≡ (Pushout Lift⊤→A*C Lift⊤→B*C)
   A○□'≡A*C∨B*C' = (spanEquivToPushoutPath  A○□=AC∨BC-span )
+
+  A○□'≡A*C∨B*C'∙ : (Pushout f1□' f3□' , inl (inl ⋆a)) ≡ (Pushout Lift⊤→A*C Lift⊤→B*C  , inl (inl ⋆a))
+  A○□'≡A*C∨B*C'∙ =  ua∙ ( pushoutEquiv f1□' f3□' Lift⊤→A*C Lift⊤→B*C A2□≃Lift⊤  A0□≃A*C A4□≃B*C
+                           (sym (funExt (λ x → inl⋆a≡f1□' x ∙ sym (transportRefl (f1□' x)))) )
+                           (sym (funExt (λ x → inl⋆b≡f3□' x ∙ sym (transportRefl (f3□' x))))))
+                         ( 
+                          (pushoutIso→ f1□' f3□' Lift⊤→A*C Lift⊤→B*C A2□≃Lift⊤ A0□≃A*C
+                           A4□≃B*C
+                           (λ i →
+                              funExt
+                              (λ x → inl⋆a≡f1□' x ∙ (λ i₁ → transportRefl (f1□' x) (~ i₁)))
+                              (~ i))
+                           (λ i →
+                              funExt
+                              (λ x → inl⋆b≡f3□' x ∙ (λ i₁ → transportRefl (f3□' x) (~ i₁)))
+                              (~ i)))
+                          (inl (inl ⋆a))
+                         ≡⟨ refl ⟩
+                          inl (π₁ A0□≃A*C (inl ⋆a)) 
+                         ≡⟨ refl ⟩
+                          inl (transport refl (inl ⋆a)) 
+                         ≡⟨ congS (λ x → inl x) (transportRefl (inl ⋆a)) ⟩
+                         inl (inl ⋆a)
+                         ∎
+                         )
+             where
+               inl⋆a≡f1□' : ∀ x → inl ⋆a ≡ f1□' x
+               inl⋆a≡f1□' (inl tt) =  refl
+               inl⋆a≡f1□' (inr c) =  push (⋆a , c)
+               inl⋆a≡f1□' (push c i) j =  push (⋆a , c) (i ∧ j) 
+               inl⋆b≡f3□' : ∀ x → inl ⋆b ≡ f3□' x
+               inl⋆b≡f3□' (inl tt) =  refl
+               inl⋆b≡f3□' (inr c) = push (⋆b , c) 
+               inl⋆b≡f3□' (push c i) j =  push (⋆b , c) (i ∧ j)
+
+  AP*C⋁BP*C≡A*C⋁B*C∙ : (Pushout ⊤→A*C ⊤→B*C , inl (inl ⋆a)) ≡ join∙ (A , ⋆a) (C , ⋆c) ⋁∙ₗ join∙ (B , ⋆b) (C , ⋆c) 
+  AP*C⋁BP*C≡A*C⋁B*C∙ =
+    Pushout ⊤→A*C ⊤→B*C , inl (inl ⋆a)
+    ≡⟨ refl ⟩
+    (joinPushout A C , inl ⋆a)  ⋁ (joinPushout B C , inl ⋆b) , inl (inl ⋆a) 
+    ≡⟨ refl ⟩
+    (joinPushout A C , inl ⋆a)  ⋁∙ₗ (joinPushout B C , inl ⋆b) 
+    ≡⟨  congS (λ x → (x  ⋁∙ₗ (joinPushout B C , inl ⋆b)))
+        (joinPushout∙≡join∙ (A , ⋆a) (C , ⋆c))     ⟩
+    ( join∙ (A , ⋆a) (C , ⋆c)  ⋁∙ₗ (joinPushout B C , inl ⋆b) )
+    ≡⟨  congS (λ x → ( join∙ (A , ⋆a) (C , ⋆c) ⋁∙ₗ x )) (joinPushout∙≡join∙ (B , ⋆b) (C , ⋆c))  ⟩
+    ( join∙ (A , ⋆a) (C , ⋆c)  ⋁∙ₗ join∙  (B , ⋆b) (C , ⋆c))
+    ∎ 
 
   AP*C⋁BP*C≡A*C⋁B*C : (Pushout ⊤→A*C ⊤→B*C) ≡ join∙ (A , ⋆a) (C , ⋆c) ⋁ join∙ (B , ⋆b) (C , ⋆c) 
   AP*C⋁BP*C≡A*C⋁B*C = (Pushout ⊤→A*C ⊤→B*C)
@@ -236,8 +286,8 @@ module _ {ℓ ℓ' ℓ''} ((A , ⋆a) : Pointed ℓ) ((B , ⋆b) : Pointed ℓ')
                            (joinPushout∙≡join∙ (B , ⋆b) (C , ⋆c))  ⟩
                         join∙ (A , ⋆a) (C , ⋆c) ⋁ join∙ (B , ⋆b) (C , ⋆c)  ∎
 
-  A*C∨B*C'≡AP*C∨BP*C : (Pushout Lift⊤→A*C Lift⊤→B*C) ≡ (Pushout ⊤→A*C ⊤→B*C)
-  A*C∨B*C'≡AP*C∨BP*C = isoToPath (iso foo foo⁻ foofoo⁻ foo⁻foo)
+  A*C∨B*C'IsoAP*C∨BP*C : Iso (Pushout Lift⊤→A*C Lift⊤→B*C) (Pushout ⊤→A*C ⊤→B*C)
+  A*C∨B*C'IsoAP*C∨BP*C = iso foo foo⁻ foofoo⁻ foo⁻foo
     where
     foo : (Pushout Lift⊤→A*C Lift⊤→B*C) → (Pushout ⊤→A*C ⊤→B*C)
     foo (inl x) = inl x
@@ -256,12 +306,23 @@ module _ {ℓ ℓ' ℓ''} ((A , ⋆a) : Pointed ℓ) ((B , ⋆b) : Pointed ℓ')
     foofoo⁻ (inr x) = refl
     foofoo⁻ (push a i) =  refl
 
+  A*C∨B*C'≡AP*C∨BP*C∙ : (Pushout Lift⊤→A*C Lift⊤→B*C , inl (inl ⋆a) ) ≡ (Pushout ⊤→A*C ⊤→B*C , inl (inl ⋆a))
+  A*C∨B*C'≡AP*C∨BP*C∙ =  ua∙ (isoToEquiv A*C∨B*C'IsoAP*C∨BP*C) refl
+
+  A*C∨B*C'≡AP*C∨BP*C : (Pushout Lift⊤→A*C Lift⊤→B*C) ≡ (Pushout ⊤→A*C ⊤→B*C)
+  A*C∨B*C'≡AP*C∨BP*C = isoToPath A*C∨B*C'IsoAP*C∨BP*C
+
   A○□≡A○□' : (Pushout (3x3-span.f1□ span) (3x3-span.f3□ span) ) ≡ (Pushout f1□' f3□') 
-  A○□≡A○□' =  Pushout (3x3-span.f1□ span) (3x3-span.f3□ span)
-              ≡⟨  congS (λ x → Pushout  (3x3-span.f1□ span) x) (f3□≡f3□')  ⟩
-               Pushout (3x3-span.f1□ span) f3□' 
-              ≡⟨  congS (λ x → Pushout  x f3□') (f1□≡f1□')  ⟩
-              Pushout f1□' f3□' ∎
+  A○□≡A○□' = congS (λ x → Pushout  (3x3-span.f1□ span) x) (f3□≡f3□') ∙ congS (λ x → Pushout  x f3□') (f1□≡f1□')
+
+  A○□≡A○□'∙ : (_≡_) {A = Pointed _} (Pushout (3x3-span.f1□ span) (3x3-span.f3□ span) , inl (inl ⋆a)) (Pushout f1□' f3□' , inl (inl ⋆a))
+  A○□≡A○□'∙ =  ua∙
+                 (pushoutEquiv (3x3-span.f1□ span) (3x3-span.f3□ span) f1□' f3□' (idEquiv _) (idEquiv _) (idEquiv _)
+                 ((∘-idʳ _) ∙ f1□≡f1□' ∙ sym (∘-idˡ _))
+                 ((∘-idʳ _) ∙ f3□≡f3□' ∙ sym (∘-idˡ _))
+                 )
+                 refl 
+
   A□○≡A□○' : (Pushout (3x3-span.f□1 span) (3x3-span.f□3 span) ) ≡ (Pushout f□1' f□3') 
   A□○≡A□○' =  Pushout (3x3-span.f□1 span) (3x3-span.f□3 span)
               ≡⟨  congS (λ x → Pushout  (3x3-span.f□1 span) x) (f□3≡f□3')  ⟩
@@ -269,22 +330,40 @@ module _ {ℓ ℓ' ℓ''} ((A , ⋆a) : Pointed ℓ) ((B , ⋆b) : Pointed ℓ')
               ≡⟨  congS (λ x → Pushout  x f□3') (f□1≡f□1')  ⟩
               Pushout f□1' f□3' ∎
 
+  A□○≡A□○'∙ : (_≡_) {A = Pointed _ } (Pushout (3x3-span.f□1 span) (3x3-span.f□3 span) , inl (inl ⋆a))  (Pushout f□1' f□3' , inl (inl ⋆a)) 
+  A□○≡A□○'∙ = ua∙ ( pushoutEquiv (3x3-span.f□1 span) (3x3-span.f□3 span) f□1' f□3' (idEquiv _) (idEquiv _) (idEquiv _)
+                    ((∘-idʳ _) ∙ f□1≡f□1' ∙ sym (∘-idˡ _))
+                    ((∘-idʳ _) ∙ f□3≡f□3' ∙ sym (∘-idˡ _))
+                    )
+                   refl 
+
 
   A□○'≡A∨BP*C : (Pushout f□1' f□3' ) ≡  (Pushout p₁ p₂)
   A□○'≡A∨BP*C =  
    sym (spanEquivToPushoutPath  A□○=A∨B*C-span )
+
+  A□○'≡A∨BP*C∙ :  (Pushout p₁ p₂ , inl (inl ⋆a)) ≡ (Pushout f□1' f□3' , inl (inl ⋆a)) 
+  A□○'≡A∨BP*C∙  = ua∙ (pushoutEquiv  p₁ p₂ f□1' f□3' A⋁B×C≃A□2 (idEquiv _) C≃A□4
+                   (sym (funExt (λ x → (f□1'f⁻¹≡p₁ x)))) ( sym (funExt f□1'f⁻¹≡inlp₂)))
+                   refl
+
+
   A∨BP*C≡A∨B*C : (Pushout p₁ p₂) ≡ (join ((A , ⋆a) ⋁ (B , ⋆b)) C)
   A∨BP*C≡A∨B*C =   joinPushout≡join ((A , ⋆a) ⋁ (B , ⋆b)) C
+  A∨BP*C≡A∨B*C∙ : (Pushout p₁ p₂ , inl (inl ⋆a)) ≡ (join ((A , ⋆a) ⋁ (B , ⋆b)) C , inlj (inl ⋆a))
+  A∨BP*C≡A∨B*C∙ = ua∙ (joinPushout≃join (((A , ⋆a) ⋁ (B , ⋆b))) C)  refl 
 
+  3x3∙ : (Pushout (3x3-span.f□1 span) (3x3-span.f□3 span) , inl (inl ⋆a))  ≡ (Pushout (3x3-span.f1□ span) (3x3-span.f3□ span) , inl (inl ⋆a))
+  3x3∙ = ua∙ (isoToEquiv (3x3-span.3x3-Iso span))  refl
   A*C⋁B*C≡A⋁B*C : join∙ (A , ⋆a) (C , ⋆c) ⋁ join∙ (B , ⋆b) (C , ⋆c) ≡ (join ((A , ⋆a) ⋁ (B , ⋆b)) C)
   A*C⋁B*C≡A⋁B*C =  join∙ (A , ⋆a) (C , ⋆c) ⋁ join∙ (B , ⋆b) (C , ⋆c) 
                    ≡⟨ sym (AP*C⋁BP*C≡A*C⋁B*C)  ⟩
                     Pushout ⊤→A*C ⊤→B*C
                    ≡⟨ sym (A*C∨B*C'≡AP*C∨BP*C)  ⟩
                     Pushout Lift⊤→A*C Lift⊤→B*C
-                   ≡⟨  sym (A○□'≡A*C∨B*C')  ⟩
+                   ≡⟨ sym (A○□'≡A*C∨B*C')  ⟩
                     Pushout f1□' f3□'
-                   ≡⟨  sym (A○□≡A○□') ⟩
+                   ≡⟨ sym (A○□≡A○□') ⟩
                      Pushout (3x3-span.f1□ span) (3x3-span.f3□ span) 
                    ≡⟨  sym (3x3-span.3x3-lemma span)  ⟩
                     Pushout (3x3-span.f□1 span) (3x3-span.f□3 span) 
@@ -294,5 +373,24 @@ module _ {ℓ ℓ' ℓ''} ((A , ⋆a) : Pointed ℓ) ((B , ⋆b) : Pointed ℓ')
                     Pushout p₁ p₂
                    ≡⟨  A∨BP*C≡A∨B*C  ⟩
                     join ((A , ⋆a) ⋁ (B , ⋆b)) C ∎
+  A*C⋁B*C≃A⋁B*C∙ : join∙ (A , ⋆a) (C , ⋆c) ⋁∙ₗ join∙ (B , ⋆b) (C , ⋆c) ≡ join∙  ((A , ⋆a) ⋁∙ₗ (B , ⋆b)) (C , ⋆c)
+  A*C⋁B*C≃A⋁B*C∙ = join∙ (A , ⋆a) (C , ⋆c) ⋁∙ₗ join∙ (B , ⋆b) (C , ⋆c)
+                    ≡⟨ sym AP*C⋁BP*C≡A*C⋁B*C∙ ⟩
+                     Pushout ⊤→A*C ⊤→B*C , inl (inl ⋆a)
+                    ≡⟨ sym A*C∨B*C'≡AP*C∨BP*C∙ ⟩
+                     Pushout Lift⊤→A*C Lift⊤→B*C , inl (inl ⋆a)
+                    ≡⟨  sym A○□'≡A*C∨B*C'∙ ⟩
+                    Pushout f1□' f3□' , inl (inl ⋆a)
+                    ≡⟨  sym A○□≡A○□'∙  ⟩
+                     Pushout (3x3-span.f1□ span) (3x3-span.f3□ span) , inl (inl ⋆a)
+                    ≡⟨ sym 3x3∙ ⟩
+                     Pushout (3x3-span.f□1 span) (3x3-span.f□3 span) , inl (inl ⋆a)
+                    ≡⟨ A□○≡A□○'∙ ⟩
+                     Pushout f□1' f□3' , inl (inl ⋆a)
+                    ≡⟨  sym A□○'≡A∨BP*C∙ ⟩
+                    Pushout p₁ p₂ , inl (inl ⋆a)
+                    ≡⟨  A∨BP*C≡A∨B*C∙ ⟩
+                    join∙  ((A , ⋆a) ⋁∙ₗ (B , ⋆b)) (C , ⋆c)
+                     ∎
 
 

@@ -29,7 +29,6 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv.HalfAdjoint
 
-open import Cubical.Relation.Nullary
 
 open import Cubical.Relation.Nullary
 
@@ -156,6 +155,7 @@ module _ {ℓ₀₀ ℓ₀₂ ℓ₀₄ : Level} {ℓ₂₀ ℓ₂₂ ℓ₂₄ 
   {-
     Proof that homotopy equivalent spans are in fact equal
   -}
+
 module _ {ℓ₀ ℓ₂ ℓ₄ : Level} where
   spanEquivToPath : {s1 s2 : 3-span {ℓ₀} {ℓ₂} {ℓ₄}}
     → (e : 3-span-equiv s1 s2) → s1 ≡ s2
@@ -200,6 +200,31 @@ module _ {ℓ₀ ℓ₂ ℓ₄ : Level} where
   spanEquivToPushoutPath : {s1 : 3-span} → {s2 : 3-span} → (e : 3-span-equiv s1 s2)
                            → spanPushout s1 ≡ spanPushout s2
   spanEquivToPushoutPath {s1} {s2} e = cong spanPushout (spanEquivToPath e)
+
+--  spanEquivToPushoutEquiv : {s1 : 3-span {ℓ₀} {ℓ₂} {ℓ₄} } → {s2 : 3-span {ℓ₀} {ℓ₂} {ℓ₄} } → (e : 3-span-equiv s1 s2)
+--                           → spanPushout s1 ≃ spanPushout s2
+--  spanEquivToPushoutEquiv {s1} {s2} e =   isoToEquiv (iso foo {!!} {!!} {!!}) -- foo , record { equiv-proof = {!!}}
+--    where
+--      open 3-span-equiv e
+--      iso0 : Iso (3-span.A0 s1) (3-span.A0 s2)
+--      iso0 = equivToIso e0
+--      iso2 : Iso (3-span.A2 s1) (3-span.A2 s2)
+--      iso2 = equivToIso e2
+--      iso4 : Iso (3-span.A4 s1) (3-span.A4 s2)
+--      iso4 = equivToIso e4
+--      foo : spanPushout s1 → spanPushout s2
+--      foo (inl x) = inl (fst e0 x)
+--      foo (inr x) = inr (fst e4 x)
+--      foo (push a i) =  (congS inl (sym (H1 a)) ∙∙ push (e2 .fst a) ∙∙ congS inr (H3 a)) i
+--      foo' : spanPushout s2 → spanPushout s1
+--      foo' (inl x) = inl (Iso.inv iso0  x)
+--      foo' (inr x) = inr (Iso.inv iso4 x) 
+--      foo' (push a i) =  ({! H1 (Iso.inv iso2 a)!} ∙∙ push (Iso.inv iso2 a) ∙∙ {!!}) i
+-- --        e0 : 3-span.A0 s1 ≃ 3-span.A0 s2
+-- --        e2 : 3-span.A2 s1 ≃ 3-span.A2 s2
+-- --        e4 : 3-span.A4 s1 ≃ 3-span.A4 s2
+-- --        H1 : ∀ x → 3-span.f1 s2 (e2 .fst x) ≡ e0 .fst (3-span.f1 s1 x)
+-- --        H3 : ∀ x → 3-span.f3 s2 (e2 .fst x) ≡ e4 .fst (3-span.f3 s1 x)
 
 {-
 
@@ -606,14 +631,14 @@ module _ {ℓA₁ ℓB₁ ℓC₁ ℓA₂ ℓB₂ ℓC₂}
       (A≃ : A₁ ≃ A₂) (B≃ : B₁ ≃ B₂) (C≃ : C₁ ≃ C₂)
       (id1 : fst B≃ ∘ f₁ ≡ f₂ ∘ fst A≃)
       (id2 : fst C≃ ∘ g₁ ≡ g₂ ∘ fst A≃) where
+  pushoutIso→ : Pushout f₁ g₁ → Pushout f₂ g₂
+  pushoutIso→ (inl x) = inl (fst B≃ x)
+  pushoutIso→ (inr x) = inr (fst C≃ x)
+  pushoutIso→ (push a i) =
+    ((λ i → inl (id1 i a)) ∙∙ push (fst A≃ a) ∙∙ λ i → inr (id2 (~ i) a)) i
   private
     ℓ* = ℓ-max ℓA₁ (ℓ-max ℓA₂ (ℓ-max ℓB₁ (ℓ-max ℓB₂ (ℓ-max ℓC₁ ℓC₂))))
 
-    pushoutIso→ : Pushout f₁ g₁ → Pushout f₂ g₂
-    pushoutIso→ (inl x) = inl (fst B≃ x)
-    pushoutIso→ (inr x) = inr (fst C≃ x)
-    pushoutIso→ (push a i) =
-      ((λ i → inl (id1 i a)) ∙∙ push (fst A≃ a) ∙∙ λ i → inr (id2 (~ i) a)) i
 
     pushoutIso* : Iso (Pushout f₁ g₁) (Pushout f₂ g₂)
     pushoutIso* =
