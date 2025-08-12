@@ -373,8 +373,8 @@ module _ {ℓ ℓ' ℓ''} ((A , ⋆a) : Pointed ℓ) ((B , ⋆b) : Pointed ℓ')
                     Pushout p₁ p₂
                    ≡⟨  A∨BP*C≡A∨B*C  ⟩
                     join ((A , ⋆a) ⋁ (B , ⋆b)) C ∎
-  A*C⋁B*C≃A⋁B*C∙ : join∙ (A , ⋆a) (C , ⋆c) ⋁∙ₗ join∙ (B , ⋆b) (C , ⋆c) ≡ join∙  ((A , ⋆a) ⋁∙ₗ (B , ⋆b)) (C , ⋆c)
-  A*C⋁B*C≃A⋁B*C∙ = join∙ (A , ⋆a) (C , ⋆c) ⋁∙ₗ join∙ (B , ⋆b) (C , ⋆c)
+  A*C⋁B*C≡A⋁B*C∙ : join∙ (A , ⋆a) (C , ⋆c) ⋁∙ₗ join∙ (B , ⋆b) (C , ⋆c) ≡ join∙  ((A , ⋆a) ⋁∙ₗ (B , ⋆b)) (C , ⋆c)
+  A*C⋁B*C≡A⋁B*C∙ = join∙ (A , ⋆a) (C , ⋆c) ⋁∙ₗ join∙ (B , ⋆b) (C , ⋆c)
                     ≡⟨ sym AP*C⋁BP*C≡A*C⋁B*C∙ ⟩
                      Pushout ⊤→A*C ⊤→B*C , inl (inl ⋆a)
                     ≡⟨ sym A*C∨B*C'≡AP*C∨BP*C∙ ⟩

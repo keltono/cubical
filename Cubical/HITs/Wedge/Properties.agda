@@ -6,6 +6,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Path
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
@@ -16,6 +17,7 @@ open import Cubical.Data.Fin.Inductive.Base
 open import Cubical.HITs.Wedge.Base
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Pushout
+open import Cubical.HITs.James.Inductive.Coherence
 
 open import Cubical.Homotopy.Loopspace
 
@@ -42,6 +44,79 @@ Iso.fun ⋁-commIso = ⋁-commFun
 Iso.inv ⋁-commIso = ⋁-commFun
 Iso.rightInv ⋁-commIso = ⋁-commFun²
 Iso.leftInv ⋁-commIso = ⋁-commFun²
+
+⋁∙ₗ-comm :  {A : Pointed ℓ} {B : Pointed ℓ'} → A ⋁∙ₗ B ≡ B ⋁∙ₗ A
+⋁∙ₗ-comm = ua∙ (isoToEquiv ⋁-commIso) (sym (push tt))
+
+⋁ₗ-assocIso : {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''} → Iso (A ⋁ (B ⋁∙ₗ C))  ((A ⋁∙ₗ B) ⋁ C)
+⋁ₗ-assocIso {A = A} {B} {C} = iso fwd  bwd fb bf
+  where
+    fwd : A ⋁ (B ⋁∙ₗ C) → (A ⋁∙ₗ B) ⋁ C
+    fwd (inl a) =  inl (inl a)
+    fwd (inr (inl b)) = inl (inr b)
+    fwd (inr (inr c)) =  inr c
+    fwd (inr (push tt i)) =  (congS inl (sym (push tt)) ∙ push tt) i  
+    fwd (push a i) =  inl (push tt i)
+    bwd :  (A ⋁∙ₗ B) ⋁ C → A ⋁ (B ⋁∙ₗ C)
+    bwd (inl (inl a)) =  inl a
+    bwd (inl (inr b)) =  inr (inl b)
+    bwd (inl (push tt i)) =  push tt i 
+    bwd (inr c) = inr (inr c)
+    bwd (push tt i) =  (push tt ∙ congS inr (push tt)) i 
+    fb : ∀ x → fwd (bwd x) ≡ x
+    fb = pushout-elim (λ x → fwd (bwd x) ≡ x) guh (λ x → refl)  foo
+     where
+      foo : ∀ x →   PathP (λ i →  fwd ((push tt ∙ congS inr (push tt)) i)  ≡ push x i) refl refl
+      foo tt = compPathL→PathP (
+          sym (congS fwd (push tt ∙ congS inr (push tt))) ∙ (refl ∙ (λ i → push tt i))
+          ≡⟨ congS (λ x → sym (congS fwd (push tt ∙ congS inr (push tt))) ∙ x) (sym (lUnit _))  ⟩
+          sym (congS fwd (push tt ∙ congS inr (push tt))) ∙ push tt
+          ≡⟨  congS (λ x → sym x ∙ push tt) (doubleCompPath-cong fwd refl (push tt) (congS inr (push tt))) ⟩
+          sym (congS fwd (push tt) ∙ congS fwd (congS inr (push tt))) ∙ push tt
+          ≡⟨ refl ⟩
+          sym (congS inl (push tt) ∙  (sym (congS inl (push tt)) ∙ push tt)) ∙ push tt
+          ≡⟨ congS (λ x → sym x ∙ push tt) (assoc _ _ _) ⟩
+          sym ( (congS inl (push tt) ∙  sym (congS inl (push tt))) ∙ push tt )   ∙ push tt
+          ≡⟨  congS (λ x → sym (x ∙ push tt) ∙ push tt) (rCancel _) ⟩
+          sym (refl ∙ push tt)  ∙ push tt
+          ≡⟨ congS (λ x → sym x ∙ push tt) (sym (lUnit _)) ⟩
+          sym (push tt)   ∙ (λ i → push tt i)
+          ≡⟨ lCancel _ ⟩
+          refl
+          ∎
+          )
+      guh : ∀ x → fwd (bwd (inl x)) ≡ inl x
+      guh (inl x) = refl
+      guh (inr x) = refl
+      guh (push tt i) = refl
+    bf : ∀ x → bwd (fwd x) ≡ x
+    bf = pushout-elim (λ x → bwd (fwd x) ≡ x) (λ _ → refl)  bweh  λ x →  flipSquare {a₋₀ = refl} {a₋₁ = refl} (refl {x = push tt})
+      where
+      ouch : PathP (λ i →  bwd ((congS inl (sym (push tt)) ∙ push tt) i)  ≡ inr (push tt i)) refl refl
+      ouch = compPathL→PathP (
+        sym (congS bwd (congS inl (sym (push tt)) ∙ push tt)) ∙
+         (refl ∙ congS inr (push tt))
+        ≡⟨ congS (λ x → sym (congS bwd (congS inl (sym (push tt)) ∙ push tt)) ∙ x) (sym (lUnit _)) ⟩
+        sym (congS bwd (congS inl (sym (push tt)) ∙ push tt)) ∙ congS inr (push tt)
+        ≡⟨ congS (λ x → sym x ∙ congS inr (push tt)) (doubleCompPath-cong bwd refl ((congS inl (sym (push tt)))) (push tt)) ⟩
+        sym (congS bwd (congS inl (sym (push tt))) ∙ congS bwd (push tt)) ∙ congS inr (push tt)
+        ≡⟨  refl ⟩
+        sym (sym  (push tt)  ∙  (push tt ∙ congS inr (push tt)) ) ∙ congS inr (push tt)
+        ≡⟨ congS (λ x → sym x ∙ congS inr (push tt)) (assoc _ _ _)  ⟩
+        sym ((sym  (push tt) ∙ push tt) ∙ congS inr (push tt)) ∙ congS inr (push tt)
+         ≡⟨ congS (λ x → sym (x ∙ congS inr (push tt)) ∙ congS inr (push tt)) (lCancel (push tt)) ⟩
+         sym (refl ∙ congS inr (push tt)) ∙ congS inr (push tt)
+         ≡⟨ congS (λ x → sym x ∙ congS inr (push tt)) (sym (lUnit (congS inr (push tt)))) ⟩
+         sym (congS inr (push tt)) ∙ congS inr (push tt)
+        ≡⟨ lCancel (congS inr (push tt)) ⟩
+        refl
+        ∎)
+      bweh : ∀ x → bwd (fwd (inr x)) ≡ inr x
+      bweh (inl x) = refl
+      bweh (inr x) = refl
+      bweh (push tt i) j =  ouch i j
+⋁ₗ∙-assoc : {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''} → (A ⋁∙ₗ (B ⋁∙ₗ C))  ≡  ((A ⋁∙ₗ B) ⋁∙ₗ C) 
+⋁ₗ∙-assoc  {A = A} {B} {C} = ua∙ (isoToEquiv ⋁ₗ-assocIso) refl
 
 -- Pushout square using Unit* for convenience
 ⋁-PushoutSquare : ∀ (A : Pointed ℓ) (B : Pointed ℓ') ℓ'' → PushoutSquare

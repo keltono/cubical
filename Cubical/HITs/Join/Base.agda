@@ -23,7 +23,7 @@ data join {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ ℓ') wh
   
 
 join∙ : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
-  → Pointed _
+  → Pointed (ℓ-max ℓ ℓ')
 fst (join∙ A B) = join (fst A) (fst B)
 snd (join∙ A B) = inl (pt A)
 

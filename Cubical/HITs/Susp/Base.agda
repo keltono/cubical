@@ -55,6 +55,10 @@ Susp^ : ℕ → Type ℓ → Type ℓ
 Susp^ 0 X = X
 Susp^ (suc n) X = Susp^ n (Susp X)
 
+Susp^∙ : ℕ → Pointed ℓ → Pointed ℓ
+Susp^∙ 0 X = X
+Susp^∙ (suc n) X = Susp^∙ n (Susp∙ (typ X))
+
 Susp^' : ℕ → Type ℓ → Type ℓ
 Susp^' zero x = x
 Susp^' (suc n) x = Susp (Susp^' n x)

@@ -471,6 +471,10 @@ inv join-comm = join-commFun
 rightInv join-comm = join-commFun²
 leftInv join-comm = join-commFun²
 
+join∙-comm : ∀ {ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+  → join∙ A B ≡ join∙ B A
+join∙-comm {A = A} {B} = ua∙ (isoToEquiv join-comm) ( sym (push (pt B) (pt A)) )
+
 join→ : ∀ {ℓ'' ℓ'''}
      {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
   → (A → C) → (B → D) → join A B → join C D
