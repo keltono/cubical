@@ -394,9 +394,55 @@ module _ (Group@(G , str) : Group ℓᵧ) where
   ^-zero zero = refl
   ^-zero (suc n) = refl
 
-  ⋁ᵐ-dist : ∀ {ℓ} {A : Pointed ℓ} (m : ℕ) (n : ℕ) → ⋁ᵐ n A ⋁∙ₗ ⋁ᵐ m A ≡ ⋁ᵐ (suc (n + m)) A
-  ⋁ᵐ-dist {A = A} m zero = refl
-  ⋁ᵐ-dist {A = A} m (suc n) = {!!}
+  ⋁ᵐ-merge : ∀ {ℓ} {A : Pointed ℓ} (m : ℕ) (n : ℕ) → ⋁ᵐ n A ⋁∙ₗ ⋁ᵐ m A ≡ ⋁ᵐ (suc (n + m)) A
+  ⋁ᵐ-merge {A = A} m zero = refl
+  ⋁ᵐ-merge {A = A} m (suc n) =
+    ((A ⋁∙ₗ ⋁ᵐ n A) ⋁∙ₗ ⋁ᵐ m A)
+    ≡⟨ sym ⋁∙ₗ-assoc  ⟩
+    A ⋁∙ₗ (⋁ᵐ n A ⋁∙ₗ ⋁ᵐ m A)
+    ≡⟨  congS (λ x → A ⋁∙ₗ x) (⋁ᵐ-merge m n) ⟩
+    ⋁ᵐ (suc (suc n + m)) A ∎ 
+
+  ⋁ᵐ-dist : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) → ⋁ᵐ n (A ⋁∙ₗ B) ≡ ⋁ᵐ n A ⋁∙ₗ ⋁ᵐ n B
+  ⋁ᵐ-dist zero = refl
+  ⋁ᵐ-dist {A = A} {B} (suc n) =
+    (A ⋁∙ₗ B) ⋁∙ₗ ⋁ᵐ n (A ⋁∙ₗ B)
+    ≡⟨ congR _⋁∙ₗ_ (⋁ᵐ-dist n) ⟩
+    (A ⋁∙ₗ B) ⋁∙ₗ ((⋁ᵐ n A) ⋁∙ₗ (⋁ᵐ n B) )
+    ≡⟨ congL _⋁∙ₗ_ ⋁∙ₗ-comm ⟩
+    (B ⋁∙ₗ A) ⋁∙ₗ ((⋁ᵐ n A) ⋁∙ₗ (⋁ᵐ n B) )
+    ≡⟨  sym ⋁∙ₗ-assoc ⟩
+    B ⋁∙ₗ (A ⋁∙ₗ ((⋁ᵐ n A) ⋁∙ₗ (⋁ᵐ n B)))
+    ≡⟨  congR _⋁∙ₗ_ ⋁∙ₗ-assoc ⟩
+    B ⋁∙ₗ ((⋁ᵐ (suc n) A) ⋁∙ₗ (⋁ᵐ n B) )
+    ≡⟨ congR _⋁∙ₗ_ ⋁∙ₗ-comm ⟩
+    B ⋁∙ₗ ( (⋁ᵐ n B) ⋁∙ₗ (⋁ᵐ (suc n) A)  )
+    ≡⟨  ⋁∙ₗ-assoc ⟩
+    ⋁ᵐ (suc n) B ⋁∙ₗ ⋁ᵐ (suc n) A
+    ≡⟨ ⋁∙ₗ-comm ⟩
+     ⋁ᵐ (suc n) A ⋁∙ₗ ⋁ᵐ (suc n) B ∎
+
+  repeated⋁' : ∀ {ℓ} {A : Pointed ℓ} (m : ℕ) (n : ℕ) → ⋁ᵐ (suc m) (⋁ᵐ (suc n) A) ≡  ⋁ᵐ (suc m  ×ℕ suc  n) A
+  repeated⋁' {A = A} m zero =    ⋁ᵐ (suc m) (⋁ᵐ 1 A) ≡⟨ {!!} ⟩ ⋁ᵐ (suc m ×ℕ 1) A ∎
+  repeated⋁' {A = A} m (suc n) = {!!}
+--    ⋁ᵐ m (⋁ᵐ(suc n) A)
+--     ≡⟨ refl ⟩
+--    ⋁ᵐ  m (A ⋁∙ₗ ⋁ᵐ n A)
+--     ≡⟨  ⋁ᵐ-dist m ⟩
+--    (⋁ᵐ m A) ⋁∙ₗ ⋁ᵐ m (⋁ᵐ n A)
+--     ≡⟨ congR _⋁∙ₗ_ (repeated⋁' m n) ⟩
+--    (⋁ᵐ m A) ⋁∙ₗ ⋁ᵐ (suc m ×ℕ suc n) A
+--     ≡⟨  ⋁ᵐ-merge  (suc m ×ℕ suc n) m ⟩
+--    ⋁ᵐ (suc (m + (suc m ×ℕ suc n))) A
+--     ≡⟨ refl ⟩
+--    ⋁ᵐ ((suc m) + (suc m ×ℕ suc n)) A
+--     ≡⟨ congS (λ x → ⋁ᵐ (suc m + x) A) (·-comm (suc m) (suc n)) ⟩
+--    ⋁ᵐ ((suc m) + (suc n ×ℕ suc m)) A
+--     ≡⟨ refl ⟩
+--    ⋁ᵐ ((suc (suc n) ×ℕ suc m)) A
+--     ≡⟨ congS (λ x → ⋁ᵐ x A) (·-comm (suc (suc n)) (suc m)) ⟩
+--     ⋁ᵐ (suc m ×ℕ suc (suc n)) A
+--     ∎
 
   repeated⋁ : ∀ {ℓ} {A : Pointed ℓ} (m : ℕ) (n : ℕ) → ⋁ᵐ (m ^ (suc n)) (⋁ᵐ m A) ≡  ⋁ᵐ (m ^ (suc (suc n)))  A
   repeated⋁ {A = A} zero n =  refl
@@ -405,10 +451,10 @@ module _ (Group@(G , str) : Group ℓᵧ) where
                ≡⟨ refl ⟩
                 ⋁ᵐ ((suc m) ^ suc n) (A  ⋁∙ₗ ⋁ᵐ m  A)
                ≡⟨ {!!} ⟩
-                ⋁ᵐ ((suc m) ^ suc n) (A  ⋁∙ₗ ⋁ᵐ m  A)
-               ≡⟨ {!!} ⟩
-                ⋁ᵐ (suc m ^ suc (suc n)) A ∎
-  -- cellular model for finite groups
+                (⋁ᵐ ((suc m) ^ suc n) A  ⋁∙ₗ ⋁ᵐ ((suc m) ^ suc n) (⋁ᵐ m  A))
+                ≡⟨ {!!} ⟩
+                 ⋁ᵐ (suc m ^ suc (suc n)) A ∎
+--   -- cellular model for finite groups
   finite-G-spheres : ∀ n m  → G∙ ≡ Lift∙ (Fin⁺∙ (suc m)) → Lift∙ {_} {ℓᵧ} (G∙ *∙ⁿ n) ≡ Lift∙ (⋁ᵐ (m ^ (suc n)) (S₊∙ n))
   finite-G-spheres  zero m GFinite =
     Lift∙ G∙ ≡⟨  sym (Lift∙-trivial G∙) ⟩

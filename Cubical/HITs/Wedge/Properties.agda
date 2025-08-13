@@ -115,8 +115,8 @@ Iso.leftInv ⋁-commIso = ⋁-commFun²
       bweh (inl x) = refl
       bweh (inr x) = refl
       bweh (push tt i) j =  ouch i j
-⋁ₗ∙-assoc : {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''} → (A ⋁∙ₗ (B ⋁∙ₗ C))  ≡  ((A ⋁∙ₗ B) ⋁∙ₗ C) 
-⋁ₗ∙-assoc  {A = A} {B} {C} = ua∙ (isoToEquiv ⋁ₗ-assocIso) refl
+⋁∙ₗ-assoc : {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''} → (A ⋁∙ₗ (B ⋁∙ₗ C))  ≡  ((A ⋁∙ₗ B) ⋁∙ₗ C) 
+⋁∙ₗ-assoc  {A = A} {B} {C} = ua∙ (isoToEquiv ⋁ₗ-assocIso) refl
 
 -- Pushout square using Unit* for convenience
 ⋁-PushoutSquare : ∀ (A : Pointed ℓ) (B : Pointed ℓ') ℓ'' → PushoutSquare
